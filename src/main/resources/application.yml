@@ -12,7 +12,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://${EC2_HOST}:5432/app?serverTimezone=Asia/Seoul
+    url: jdbc:postgresql://${EC2_DATABASE_HOST}:5432/app?serverTimezone=Asia/Seoul
     username: spring
     password: 1234
   session:
@@ -21,7 +21,7 @@ spring:
       flush-mode: immediate
   data:
     redis:
-      host: ${EC2_HOST}
+      host: ${EC2_DATABASE_HOST}
       port: 6379
   cache:
     type: redis
