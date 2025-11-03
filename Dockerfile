@@ -36,6 +36,9 @@ ENV NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
 WORKDIR /app
 
 # Gradle wrapper 및 프로젝트 파일 복사
+# COPY <src> <dest>
+# <src>: 호스트(현재 디렉토리)의 경로
+# <dest>: 컨테이너 내부의 경로
 COPY . .
 
 # Gradle 빌드 실행 (build/libs/*.jar 생성됨)
