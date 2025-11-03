@@ -20,7 +20,7 @@ select * from tbl_member;
 
 
 
-
+select id, member_name from tbl_member;
 
 
 

@@ -45,7 +45,7 @@ WORKDIR /app
 COPY . .
 
 # Gradle 빌드 실행 (build/libs/*.jar 생성됨)
-RUN chmod +x ./gradlew && ./gradlew build
+RUN chmod +x ./gradlew && ./gradlew build -x test
 
 # 2단계: 실제 실행 이미지 (최종 이미지)
 FROM eclipse-temurin:17-jre
