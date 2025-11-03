@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.app.mapper.MemberMapper">
+    <insert id="insert">
+        insert into tbl_member (member_name, member_email, member_password)
+        values (#{memberName}, #{memberEmail}, #{memberPassword})
+    </insert>
+
+    <insert id="insertSns">
+        insert into tbl_member (member_name, sns_email, provider, member_role)
+        values (#{memberName}, #{snsEmail}, #{provider}, #{memberRole})
+    </insert>
+
+    <select id="selectForLogin">
+        select
+            id, member_name, member_email, member_status, member_role, sns_email, created_date, updated_date
+        from tbl_member
+        where member_email = #{memberEmail} and member_password = #{memberPassword} and member_status = 'active'
+    </select>
+
+    <select id="selectMemberByMemberEmail">
+        select
+            id, member_name, member_email, member_password, member_role, sns_email, member_status, created_date, updated_date
+        from tbl_member
+        where member_email = #{memberEmail} and member_status = 'active'
+    </select>
+
+    <select id="selectMemberBySnsEmail">
+        select
+            id, member_name, member_email, member_password, member_role, sns_email, member_status, created_date, updated_date
+        from tbl_member
+        where sns_email = #{snsEmail} and member_status = 'active'
+    </select>
+</mapper>

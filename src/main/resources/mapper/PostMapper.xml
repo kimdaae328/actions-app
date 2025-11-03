@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.app.mapper.PostMapper">
+    <sql id="search">
+        <if test="search.keyword != null">
+            and
+            <choose>
+                <when test="search.category == 'title'.toString()">
+                    post_title like concat('%', #{search.keyword}, '%')
+                </when>
+                <when test="search.category == 'content'.toString()">
+                    post_content like concat('%', #{search.keyword}, '%')
+                </when>
+                <when test="search.category == 'writer'.toString()">
+                    member_name like concat('%', #{search.keyword}, '%')
+                </when>
+                <otherwise>
+                    (
+                    post_title like concat('%', #{search.keyword}, '%') or
+                    post_content like concat('%', #{search.keyword}, '%') or
+                    member_name like concat('%', #{search.keyword}, '%')
+                    )
+                </otherwise>
+            </choose>
+        </if>
+    </sql>
+
+    <select id="selectPosts">
+        select p.id, post_title, post_content, post_read_count, member_name, p.created_datetime, p.updated_datetime
+        from tbl_member m join tbl_post p
+        on m.id = p.member_id and p.post_status = 'active'
+        <include refid="search"/>
+        order by id desc
+        limit #{criteria.rowCount} offset #{criteria.offset}
+    </select>
+
+    <select id="selectPostCount">
+        select count(*)
+        from tbl_member m join tbl_post p
+        on m.id = p.member_id and post_status = 'active'
+        <include refid="search"/>
+    </select>
+
+    <select id="selectPost">
+        select p.id, post_title, post_content, post_read_count, member_id, member_name, p.created_datetime, p.updated_datetime
+        from tbl_member m join tbl_post p
+        on m.id = p.member_id and p.id = #{id} and post_status = 'active'
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into tbl_post (post_title, post_content, member_id)
+        values (#{postTitle}, #{postContent}, #{memberId})
+    </insert>
+
+    <update id="updateReadCount">
+        update tbl_post
+        set post_read_count = post_read_count + 1
+        where id = #{id}
+    </update>
+
+    <update id="delete">
+        update tbl_post
+        set post_status = 'inactive'
+        where id = #{id}
+    </update>
+
+    <update id="update">
+        update tbl_post
+        set post_title = #{postTitle}, post_content = #{postContent}, updated_datetime = now()
+        where id = #{id}
+    </update>
+</mapper>

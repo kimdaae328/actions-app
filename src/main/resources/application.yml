@@ -1,0 +1,52 @@
+server:
+  port: 10000
+  servlet:
+    session:
+      tracking-modes: COOKIE
+      cookie:
+        http-only: true
+        secure: false
+        same-site: lax
+      timeout: 10m
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${EC2_HOST}:5432/app?serverTimezone=Asia/Seoul
+    username: spring
+    password: 1234
+  session:
+    redis:
+      repository-type: indexed
+      flush-mode: immediate
+  data:
+    redis:
+      host: ${EC2_HOST}
+      port: 6379
+  cache:
+    type: redis
+  profiles:
+    active: local
+    include: oauth
+
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.example.app.domain;com.example.app.dto;
+  type-handlers-package: com.example.app.mybatis.handler
+  configuration:
+    map-underscore-to-camel-case: true
+
+# openssl rand -base64 32
+jwt:
+  secret: ${JWT_SECRET}
+
+aws:
+  access-key: ${AWS_ACCESS_KEY_ID}
+  secret-key: ${AWS_SECRET_ACCESS_KEY}
+  s3:
+    bucket-name: ${AWS_S3_BUCKET}
+  region: ${AWS_REGION}
+
+
+
+

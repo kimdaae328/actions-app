@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <link rel="stylesheet" href="/css/member/join.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <div class="signup-form-container">
+        <div class="form-header">
+            <h1>회원가입</h1>
+            <p>서비스 이용을 위한 회원가입을 해주세요</p>
+        </div>
+
+        <form action="/member/sns/join" method="post" id="signupForm" th:object="${memberDTO}">
+            <div class="input-group">
+                <input type="email" id="email" required autocomplete="off" th:field="*{snsEmail}" readonly>
+                <label for="email">이메일</label>
+                <div class="error-message"></div>
+                <div class="input-status"></div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="username" required autocomplete="off" th:field="*{memberName}">
+                <label for="username">이름</label>
+                <div class="error-message"></div>
+                <div class="input-status"></div>
+            </div>
+
+            <button type="submit" class="signup-button">
+                <span class="button-text">가입하기</span>
+            </button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

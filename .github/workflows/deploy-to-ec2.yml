@@ -1,0 +1,72 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    if: github.repository == 'spring-app-test/spring-app-test'
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        include:
+          - name: EC2_HOST1
+          - name: EC2_HOST2      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set HOST env var from secrets
+      run: echo "HOST=${{ secrets[matrix.name] }}" >> $GITHUB_ENV
+      
+    - name: Debug EC2_HOST
+      run: echo "EC2_HOST is ${{ secrets.EC2_HOST }}"
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+    - name: Copy project to EC2
+      run: |
+        rsync -avz -e "ssh -i ~/.ssh/id_rsa" . ${{ secrets.EC2_USER }}@$HOST:/home/ubuntu/app
+    - name: Build & Run Docker on EC2
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@$HOST << EOF
+          cd /home/ubuntu/app
+          docker stop app || true
+          docker rm app || true
+          docker rmi app || true
+          docker build --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            --build-arg EC2_HOST=${{ secrets.EC2_HOST }} \
+            --build-arg AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            --build-arg AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
+            --build-arg AWS_REGION=${{ secrets.AWS_REGION }} \
+            --build-arg KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+            --build-arg KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+            --build-arg NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
+            --build-arg NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
+            -t app .
+          docker run -d -p 80:10000 --name app \
+            -e EC2_HOST=${{ secrets.EC2_HOST }} \
+            -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
+            -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
+            -e AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }} \
+            -e AWS_REGION=${{ secrets.AWS_REGION }} \
+            -e KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }} \
+            -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
+            -e NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
+            -e NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
+            -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+            app
+    - name: Clean up dangling images
+      if: success()
+      run: |
+        ssh -i ~/.ssh/id_rsa ${{ secrets.EC2_USER }}@$HOST << 'EOF'
+          docker image prune -f
+          docker container prune -f

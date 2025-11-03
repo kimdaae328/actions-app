@@ -1,0 +1,202 @@
+:root {
+    --color-main: #1a73e8;
+    --color-text: #333;
+    --color-text-light: #666;
+    --color-border: #e0e0e0;
+    --color-background: #f8f9fa;
+    --color-white: #fff;
+    --shadow-small: 0 1px 3px rgba(0,0,0,0.1);
+    --radius-small: 6px;
+    --radius-medium: 8px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--color-text);
+    line-height: 1.5;
+    background: var(--color-background);
+}
+
+/* 메인 컨테이너 */
+main {
+    margin-top: 4rem;
+    padding: 2rem;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* 게시판 상단 */
+.board-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.board-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.btn-write {
+    padding: 0.5rem 1.25rem;
+    background: var(--color-main);
+    color: var(--color-white);
+    border-radius: var(--radius-small);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* 검색바 */
+/* 검색바 */
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    background: var(--color-white);
+    padding: 0.75rem;
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-small);
+}
+
+.search-select {
+    min-width: 100px;
+    padding: 0.625rem 2rem 0.625rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+    color: var(--color-text);
+    font-size: 0.9rem;
+    background: var(--color-white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.5rem center;
+    appearance: none;
+    cursor: pointer;
+}
+
+.search-select:focus {
+    outline: none;
+    border-color: var(--color-main);
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.625rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-small);
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--color-main);
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.btn-search {
+    padding: 0.625rem 1.5rem;
+    background: var(--color-main);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-small);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-search:hover {
+    background: #1557b0;
+}
+
+/* 게시판 테이블 */
+.board {
+    background: var(--color-white);
+    border-radius: var(--radius-medium);
+    box-shadow: var(--shadow-small);
+    overflow: hidden;
+}
+
+.board-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.board-table th {
+    background: var(--color-background);
+    padding: 1rem;
+    font-weight: 500;
+    text-align: left;
+    color: var(--color-text);
+    font-size: 0.9rem;
+}
+
+.board-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 0.9rem;
+}
+
+.board-table tr:last-child td {
+    border-bottom: none;
+}
+
+.board-table a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.board-table a:hover {
+    color: var(--color-main);
+}
+
+.th-num { width: 8%; }
+.th-title { width: 50%; }
+.th-writer { width: 15%; }
+.th-date { width: 15%; }
+.th-view { width: 12%; }
+
+/* 페이지네이션 */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.page-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.5rem;
+    border-radius: var(--radius-small);
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.page-num.active {
+    background: var(--color-main);
+    color: var(--color-white);
+}
+
+.page-num[href]:hover {
+    background: var(--color-background);
+    color: var(--color-main);
+}
