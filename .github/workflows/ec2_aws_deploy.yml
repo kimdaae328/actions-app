@@ -57,7 +57,7 @@ jobs:
             -e KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }} \
             -e NAVER_CLIENT_ID=${{ secrets.NAVER_CLIENT_ID }} \
             -e NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }} \
-            -e JWT_SECRET=$JWT_SECRET \
+            -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
             app
             
     - name: Clean up not used images
