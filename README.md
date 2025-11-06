@@ -4,13 +4,20 @@
 
 **Docker**는 애플리케이션을 실행에 필요한 모든 환경(라이브러리, 설정, 코드 등)을 **하나의 컨테이너**로 묶어 어디서나 동일한 환경에서 동작하도록 하는 기술이다.
 
+---
+
 ### 주요 개념
 
-| 개념 | 설명 |
-|------|------|
-| **Image** | 실행 가능한 환경과 코드를 담은 템플릿 (컨테이너의 설계도) |
-| **Container** | 이미지를 실제로 실행한 인스턴스 (실행 중인 애플리케이션) |
-| **Dockerfile** | 이미지를 자동으로 생성하기 위한 설정 파일 |
+- **Image**  
+  실행 가능한 환경과 코드를 담은 **템플릿**으로, 컨테이너의 **설계도** 역할을 한다.
+
+- **Container**  
+  이미지를 실제로 **실행한 인스턴스**로, 실행 중인 **애플리케이션**을 의미한다.
+
+- **Dockerfile**  
+  이미지를 **자동으로 생성하기 위한 설정 파일**로, 어떤 환경과 명령으로 이미지를 만들지 정의한다.
+
+---
 
 ## Docker 설치 및 기본 명령어
 ```bash
@@ -51,15 +58,7 @@ docker rm [컨테이너명]
 docker rmi [이미지ID]
 ```
 
-## CI/CD
-
-| 개념 | 설명 |
-|------|------|
-| **CI (Continuous Integration)** | 코드 변경 사항을 주기적으로 통합하고 자동으로 빌드 및 테스트하는 과정 |
-| **CD (Continuous Deployment)** | 빌드된 애플리케이션을 자동으로 서버에 배포하는 과정 |
-
-**CI/CD**는 개발자가 코드를 `git push` 하는 순간  
-자동으로 **빌드(Build) → 테스트(Test) → 배포(Deploy)** 가 진행되는 자동화 파이프라인을 의미한다.
+---
 
 ## GitHub Secrets 설정
 
@@ -76,7 +75,7 @@ GitHub Actions에서 서버 접속 정보나 키를 직접 코드에 넣는 것�
 | **AWS_S3_BUCKET** | S3 버킷명 | `kok-bucket` |
 | **AWS_REGION** | AWS 리전 | `ap-northeast-2` |
 
-> 모든 민감 정보는 `.yml` 파일 내부에서 `${{ secrets.변수명 }}` 형태로 참조한다.
+---
 
 ## GitHub Actions (워크플로우 자동화 도구)
 
@@ -89,6 +88,8 @@ GitHub Actions에서 서버 접속 정보나 키를 직접 코드에 넣는 것�
 2. **EC2 서버에 SSH로 접속**한다.  
 3. 최신 코드를 **전송하고 Docker로 빌드**한다.  
 4. 이전 컨테이너를 **중단하고 새 컨테이너를 실행**한다.
+
+---
 
 ## Workflow 파일 예시
 ```bash
@@ -130,21 +131,79 @@ jobs:
           EOF
 ```
 
-## Dockerfile 예시
+## Dockerfile
 ```bash
 # 1단계: 빌드용 이미지
 FROM eclipse-temurin:17-jdk AS build
-WORKDIR /app
+
+# 빌드 시 필요한 정보 받아오기
+ARG EC2_HOST
+ENV EC2_HOST=${EC2_HOST}
+
+ARG EC2_DATABASE_HOST
+ENV EC2_DATABASE_HOST=${EC2_DATABASE_HOST}
+
+ARG JWT_SECRET
+ENV JWT_SECRET=${JWT_SECRET}
+
+ARG AWS_ACCESS_KEY_ID
+ENV AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+
+ARG AWS_SECRET_ACCESS_KEY
+ENV AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+
+ARG AWS_S3_BUCKET
+ENV AWS_S3_BUCKET=${AWS_S3_BUCKET}
+
+ARG AWS_REGION
+ENV AWS_REGION=${AWS_REGION}
+
+ARG KAKAO_CLIENT_ID
+ENV KAKAO_CLIENT_ID=${KAKAO_CLIENT_ID}
+
+ARG KAKAO_CLIENT_SECRET
+ENV KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
+
+ARG NAVER_CLIENT_ID
+ENV NAVER_CLIENT_ID=${NAVER_CLIENT_ID}
+
+ARG EMAIL_ID
+ENV EMAIL_ID=${EMAIL_ID}
+
+ARG EMAIL_PASSWORD
+ENV EMAIL_PASSWORD=${EMAIL_PASSWORD}
+
+ARG EC2_DATABASE_PASSWORD
+ENV EC2_DATABASE_PASSWORD=${EC2_DATABASE_PASSWORD}
+
+# 작업 디렉토리 설정
+WORKDIR /docker-kok
+
+# Gradle wrapper 및 프로젝트 파일 복사
+# COPY <src> <dest>
+# <src>: 호스트(현재 디렉토리)의 경로
+# <dest>: 컨테이너 내부의 경로
 COPY . .
+
+# Gradle 빌드 실행 (build/libs/*.jar 생성됨)
 RUN chmod +x ./gradlew && ./gradlew build -x test
 
-# 2단계: 실행용 이미지
+# 2단계: 실제 실행 이미지 (최종 이미지)
 FROM eclipse-temurin:17-jre
-WORKDIR /app
-COPY --from=build /app/build/libs/kok-0.0.1-SNAPSHOT.jar app.jar
+
+# 타임존 설정 (한국 시간)
+ENV TZ=Asia/Seoul
+
+# JAR 복사 (위 단계에서 생성된 JAR)
+COPY --from=build /docker-kok/build/libs/kok-0.0.1-SNAPSHOT.jar kok.jar
+
+# 포트 오픈 (Spring Boot 기본 포트)
 EXPOSE 10000
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# 실행 명령
+ENTRYPOINT ["java", "-jar", "kok.jar"]
 ```
 
 ## CI/CD 파이프라인 흐름
+<img width="1920" height="1080" alt="509945194-f95425b9-dcf0-43b4-b5e1-5d1038444235" src="https://github.com/user-attachments/assets/0054d23f-9f31-4cbb-8b18-6596a6729bda" />
 
